@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function index() : JsonResponse
     {
         try {
             return response()->json([
@@ -28,51 +29,94 @@ class StudentController extends Controller
         ],500);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+     function get($id): JsonResponse
     {
-        //
+        try {
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully retrieved student',
+                'student' => Student::findOrFail($id)
+            ],200);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
+        return response()->json([
+            'error' => true,
+            'message' => 'An error occurred while getting student!',
+        ],500);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    function create(Request $request): JsonResponse
     {
-        //
+        try {
+            $student = new Student;
+            $this->getData($request, $student);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully created student',
+                'student' => $student
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
+        return response()->json([
+            'error' => true,
+            'message' => 'An error occurred while creating student!',
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Student $student)
+    public function delete($id): JsonResponse
     {
-        //
+        try {
+            $student = Student::findOrFail($id);
+            $student->update(['active' => false]);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully deleted student',
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
+        return response()->json([
+            'error' => true,
+            'message' => 'An error occurred while deleting student!',
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Student $student)
+    public function update(Request $request, $id): JsonResponse
     {
-        //
+        try {
+            $student = Student::findOrFail($id);
+            $this->getData($request, $student);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully updated student',
+                'student' => $student
+            ]);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+        }
+        return response()->json([
+            'error' => true,
+            'message' => 'An error occurred while updating student!',
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Student $student)
+    private function getData($request, $student)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Student $student)
-    {
-        //
+        $student->name = $request->name;
+        $student->dob = $request->dob;
+        $student->gpa = $request->gpa;
+        $student->gender = $request->gender;
+        $student->email = $request->email;
+        $student->save();
     }
 }
+
