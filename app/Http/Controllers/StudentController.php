@@ -98,7 +98,7 @@ class StudentController extends Controller
                 'error' => false,
                 'message' => 'Successfully updated student',
                 'student' => $student
-            ]);
+            ],200);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
@@ -106,7 +106,7 @@ class StudentController extends Controller
         return response()->json([
             'error' => true,
             'message' => 'An error occurred while updating student!',
-        ]);
+        ],500);
     }
 
     private function getData($request, $student)
